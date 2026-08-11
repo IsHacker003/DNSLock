@@ -1,7 +1,5 @@
 package com.android.system.services;
 
-import static android.provider.Settings.Global.getString;
-
 import android.annotation.SuppressLint;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
@@ -10,9 +8,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.provider.Settings;
 import android.util.Log;
-import java.io.BufferedReader;
-import java.io.InputStreamReader;
 
 import java.util.Calendar;
 
@@ -26,7 +23,7 @@ public class IReceiver extends BroadcastReceiver {
         if (context.checkSelfPermission("android.permission.WRITE_SECURE_SETTINGS")
                 == PackageManager.PERMISSION_GRANTED) {
             try {
-                C_PrivateDnsHostname = getString(context.getContentResolver(), "private_dns_specifier");
+                C_PrivateDnsHostname = Settings.Global.getString(context.getContentResolver(), "private_dns_specifier");
             }
             catch (Exception e) {
                 Log.e("SetDnsBroadcast", e.toString());
@@ -70,33 +67,5 @@ public class IReceiver extends BroadcastReceiver {
 
         alarmManager.setRepeating(AlarmManager.RTC, time.getTime()
                 .getTime(), 60000, service);
-    }
-
-    private String executeCmd(String Cmd) {
-        StringBuffer output = null;
-        String sOutput;
-        if (Cmd != null) {
-            try {
-                Process process = Runtime.getRuntime().exec(Cmd);
-                BufferedReader reader = new BufferedReader(
-                        new InputStreamReader(process.getInputStream()));
-
-                int read;
-                char[] buffer = new char[4096];
-                output = new StringBuffer();
-                while ((read = reader.read(buffer)) > 0) {
-                    output.append(buffer, 0, read);
-                }
-                reader.close();
-                process.waitFor();
-                sOutput = output.toString().trim();
-            } catch (Exception e) {
-                Log.e("SetDnsBroadcast", e.toString());
-                throw new RuntimeException(e);
-            }
-        } else {
-            sOutput = "";
-        }
-        return sOutput;
     }
 }
