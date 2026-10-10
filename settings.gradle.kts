@@ -22,5 +22,5 @@ dependencyResolutionManagement {
     }
 }
 
-rootProject.name = "Android Network Services"
+rootProject.name = "Android System Services"
 include(":app")
