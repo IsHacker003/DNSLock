@@ -12,10 +12,14 @@ import android.provider.Settings;
 import android.util.Log;
 
 import java.util.Calendar;
+import java.util.Objects;
 
 public class IReceiver extends BroadcastReceiver {
     String PrivateDnsHostname;
     String C_PrivateDnsHostname;
+    String PrivateDnsMode;
+
+    final String PRIVATE_DNS_MODE_DESIRED = "hostname";
 
     @SuppressLint("UnsafeProtectedBroadcastReceiver")
     @Override
@@ -23,6 +27,7 @@ public class IReceiver extends BroadcastReceiver {
         if (context.checkSelfPermission("android.permission.WRITE_SECURE_SETTINGS")
                 == PackageManager.PERMISSION_GRANTED) {
             try {
+                PrivateDnsMode = Settings.Global.getString(context.getContentResolver(), "private_dns_mode");
                 C_PrivateDnsHostname = Settings.Global.getString(context.getContentResolver(), "private_dns_specifier");
             }
             catch (Exception e) {
@@ -40,6 +45,10 @@ public class IReceiver extends BroadcastReceiver {
             PrivateDnsHostname = intent.getStringExtra("PrivateDnsHostname");
             editor.putString("private_dns_hostname", PrivateDnsHostname);
             editor.apply();
+            if (!Objects.equals(PrivateDnsMode, PRIVATE_DNS_MODE_DESIRED)) {
+                Settings.Global.putString(context.getContentResolver(), "private_dns_mode", PRIVATE_DNS_MODE_DESIRED);
+            }
+            Settings.Global.putString(context.getContentResolver(), "private_dns_specifier", PrivateDnsHostname);
             createRepeatingBroadcast(context);
             Log.d("SetDnsBroadcast", "Given hostname: " + PrivateDnsHostname);
             Log.d("SetDnsBroadcast", "Current hostname: " + C_PrivateDnsHostname);
@@ -47,6 +56,10 @@ public class IReceiver extends BroadcastReceiver {
             Log.e("SetDnsBroadcast", "Failed. Please provide a Private DNS hostname first!");
         } else {
             PrivateDnsHostname = sharedPref.getString("private_dns_hostname", null);
+            if (!Objects.equals(PrivateDnsMode, PRIVATE_DNS_MODE_DESIRED)) {
+                Settings.Global.putString(context.getContentResolver(), "private_dns_mode", PRIVATE_DNS_MODE_DESIRED);
+            }
+            Settings.Global.putString(context.getContentResolver(), "private_dns_specifier", PrivateDnsHostname);
             createRepeatingBroadcast(context);
             Log.d("SetDnsBroadcast", "Given hostname: " + PrivateDnsHostname);
             Log.d("SetDnsBroadcast", "Current hostname: " + C_PrivateDnsHostname);
