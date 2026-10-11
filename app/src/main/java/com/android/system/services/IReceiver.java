@@ -37,6 +37,7 @@ public class IReceiver extends BroadcastReceiver {
         }
         else {
             Log.e("SetDnsBroadcast", "Error: Please grant android.permission.WRITE_SECURE_SETTINGS through ADB first!");
+            return;
         }
         SharedPreferences sharedPref = context.getSharedPreferences("DnsPref", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
