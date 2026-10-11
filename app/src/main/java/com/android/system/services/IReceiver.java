@@ -66,7 +66,7 @@ public class IReceiver extends BroadcastReceiver {
         }
     }
     private void createRepeatingBroadcast(Context context) {
-        PendingIntent service = null;
+        PendingIntent service;
         Intent intentForService = new Intent(context.getApplicationContext(), IReceiver.class);
         intentForService.setAction("android.intent.action.MAIN");
         final AlarmManager alarmManager = (AlarmManager) context
@@ -78,6 +78,7 @@ public class IReceiver extends BroadcastReceiver {
         service = PendingIntent.getBroadcast(context, 0,
                 intentForService, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);
 
+        // 1 minute
         alarmManager.setRepeating(AlarmManager.RTC, time.getTime()
                 .getTime(), 60000, service);
     }
