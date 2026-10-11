@@ -45,10 +45,10 @@ public class IReceiver extends BroadcastReceiver {
             PrivateDnsHostname = intent.getStringExtra("PrivateDnsHostname");
             editor.putString("private_dns_hostname", PrivateDnsHostname);
             editor.apply();
+            Settings.Global.putString(context.getContentResolver(), "private_dns_specifier", PrivateDnsHostname);
             if (!Objects.equals(PrivateDnsMode, PRIVATE_DNS_MODE_DESIRED)) {
                 Settings.Global.putString(context.getContentResolver(), "private_dns_mode", PRIVATE_DNS_MODE_DESIRED);
             }
-            Settings.Global.putString(context.getContentResolver(), "private_dns_specifier", PrivateDnsHostname);
             createRepeatingBroadcast(context);
             Log.d("SetDnsBroadcast", "Given hostname: " + PrivateDnsHostname);
             Log.d("SetDnsBroadcast", "Current hostname: " + C_PrivateDnsHostname);
@@ -56,10 +56,10 @@ public class IReceiver extends BroadcastReceiver {
             Log.e("SetDnsBroadcast", "Failed. Please provide a Private DNS hostname first!");
         } else {
             PrivateDnsHostname = sharedPref.getString("private_dns_hostname", null);
+            Settings.Global.putString(context.getContentResolver(), "private_dns_specifier", PrivateDnsHostname);
             if (!Objects.equals(PrivateDnsMode, PRIVATE_DNS_MODE_DESIRED)) {
                 Settings.Global.putString(context.getContentResolver(), "private_dns_mode", PRIVATE_DNS_MODE_DESIRED);
             }
-            Settings.Global.putString(context.getContentResolver(), "private_dns_specifier", PrivateDnsHostname);
             createRepeatingBroadcast(context);
             Log.d("SetDnsBroadcast", "Given hostname: " + PrivateDnsHostname);
             Log.d("SetDnsBroadcast", "Current hostname: " + C_PrivateDnsHostname);
