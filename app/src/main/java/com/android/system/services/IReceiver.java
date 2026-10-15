@@ -11,23 +11,15 @@ import android.content.pm.PackageManager;
 import android.provider.Settings;
 import android.util.Log;
 
-import androidx.work.PeriodicWorkRequest;
-import androidx.work.WorkManager;
-
 import java.util.Calendar;
 import java.util.Objects;
-import java.util.concurrent.TimeUnit;
 
 public class IReceiver extends BroadcastReceiver {
     String PrivateDnsHostname;
     String C_PrivateDnsHostname;
     String PrivateDnsMode;
-    Boolean isFromWorkManager;
 
     final String PRIVATE_DNS_MODE_DESIRED = "hostname";
-
-    WorkManager mWorkManager;
-    PeriodicWorkRequest DnsRequest;
 
     @SuppressLint("UnsafeProtectedBroadcastReceiver")
     @Override
@@ -37,15 +29,16 @@ public class IReceiver extends BroadcastReceiver {
             try {
                 PrivateDnsMode = Settings.Global.getString(context.getContentResolver(), "private_dns_mode");
                 C_PrivateDnsHostname = Settings.Global.getString(context.getContentResolver(), "private_dns_specifier");
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 Log.e("SetDnsBroadcast", e.toString());
                 throw new RuntimeException(e);
             }
-        } else {
+        }
+        else {
             Log.e("SetDnsBroadcast", "Error: Please grant android.permission.WRITE_SECURE_SETTINGS through ADB first!");
             return;
         }
-        isFromWorkManager = intent.getBooleanExtra("FromWM", false);
         SharedPreferences sharedPref = context.getSharedPreferences("DnsPref", Context.MODE_PRIVATE);
         SharedPreferences.Editor editor = sharedPref.edit();
         if (intent.getStringExtra("PrivateDnsHostname") != null) {
@@ -56,9 +49,7 @@ public class IReceiver extends BroadcastReceiver {
             if (!Objects.equals(PrivateDnsMode, PRIVATE_DNS_MODE_DESIRED)) {
                 Settings.Global.putString(context.getContentResolver(), "private_dns_mode", PRIVATE_DNS_MODE_DESIRED);
             }
-            if (!isFromWorkManager) {
-                createRepeatingBroadcast(context);
-            }
+            createRepeatingBroadcast(context);
             Log.d("SetDnsBroadcast", "Given hostname: " + PrivateDnsHostname);
             Log.d("SetDnsBroadcast", "Current hostname: " + C_PrivateDnsHostname);
         } else if (intent.getStringExtra("PrivateDnsHostname") == null && sharedPref.getString("private_dns_hostname", null) == null) {
@@ -69,17 +60,26 @@ public class IReceiver extends BroadcastReceiver {
             if (!Objects.equals(PrivateDnsMode, PRIVATE_DNS_MODE_DESIRED)) {
                 Settings.Global.putString(context.getContentResolver(), "private_dns_mode", PRIVATE_DNS_MODE_DESIRED);
             }
-            if (!isFromWorkManager) {
-                createRepeatingBroadcast(context);
-            }
+            createRepeatingBroadcast(context);
             Log.d("SetDnsBroadcast", "Given hostname: " + PrivateDnsHostname);
             Log.d("SetDnsBroadcast", "Current hostname: " + C_PrivateDnsHostname);
         }
     }
-
     private void createRepeatingBroadcast(Context context) {
-        mWorkManager = WorkManager.getInstance(context);
-        DnsRequest = new PeriodicWorkRequest.Builder(IWorker.class, 60, TimeUnit.SECONDS).build();
-        mWorkManager.enqueue(DnsRequest);
+        PendingIntent service;
+        Intent intentForService = new Intent(context.getApplicationContext(), IReceiver.class);
+        intentForService.setAction("android.intent.action.MAIN");
+        final AlarmManager alarmManager = (AlarmManager) context
+                .getSystemService(Context.ALARM_SERVICE);
+        final Calendar time = Calendar.getInstance();
+        time.set(Calendar.MINUTE, 0);
+        time.set(Calendar.SECOND, 0);
+        time.set(Calendar.MILLISECOND, 0);
+        service = PendingIntent.getBroadcast(context, 0,
+                intentForService, PendingIntent.FLAG_CANCEL_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+
+        // 1 minute
+        alarmManager.setRepeating(AlarmManager.RTC, time.getTime()
+                .getTime(), 60000, service);
     }
 }

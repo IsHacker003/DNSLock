@@ -37,10 +37,7 @@ android {
 }
 
 dependencies {
-    val work_version = "2.12.0"
-
     implementation(libs.appcompat)
-    implementation("androidx.work:work-runtime:${work_version}")
     testImplementation(libs.junit)
     androidTestImplementation(libs.ext.junit)
     androidTestImplementation(libs.espresso.core)
