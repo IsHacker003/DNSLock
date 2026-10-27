@@ -1,4 +1,6 @@
 # DNSLock
+**Disclaimer:** This app is 100% slop-free and written without the use of LLMs.
+
 I made this app as a solution to the following question that I asked on Android Enthusiasists StackExchange:
 > Despite repeated efforts to explain them, some family members keep turning off the private DNS setting in Android, **which leads to the invasion of their phones by ads, trackers and malware.** So, I want to lock down the private DNS setting so it can't be changed or turned off, and I need to do it **without using root or third-party apps.** The problem with third-party apps is that they will see the app on the launcher or in Settings > App and just uninstall it to bypass the block. And if I set the DNS on the WiFi router itself, they will refuse to use the WiFi and use cellular network instead.
 >
